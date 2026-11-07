@@ -1,0 +1,111 @@
+---
+/** Listing page: the maker's public page with the outbound link (`ugc nofollow` until ownership is verified). */
+import Base from '../layouts/Base.astro';
+import Avatar from '../components/Avatar.astro';
+import Icon from '../components/Icon.astro';
+import Snippet from '../components/Snippet.astro';
+import { REPO, SITE_NAME, SITE_URL } from '../config.ts';
+import { badgeHtml, categorySlug, listingUrl, metaTag, type Listing } from '../lib/listing.ts';
+import { loadAll } from '../lib/store.ts';
+import { displayUrl, paragraphs, truncate } from '../lib/text.ts';
+
+export function getStaticPaths() {
+  return loadAll().map((l) => ({ params: { slug: l.slug }, props: { l } }));
+}
+
+interface Props { l: Listing }
+const { l } = Astro.props;
+const host = displayUrl(l.url);
+const catPath = `/c/${categorySlug(l.category)}/`;
+const day = (iso: string): string =>
+  new Date(iso).toLocaleDateString('en', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+const jsonLd = {
+  '@graph': [
+    {
+      '@type': 'SoftwareApplication',
+      name: l.name,
+      url: l.url,
+      description: l.tagline,
+      applicationCategory: l.category,
+      datePublished: l.createdAt,
+      dateModified: l.updatedAt,
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: SITE_NAME, item: `${SITE_URL}/` },
+        { '@type': 'ListItem', position: 2, name: l.category, item: `${SITE_URL}${catPath}` },
+        { '@type': 'ListItem', position: 3, name: l.name, item: listingUrl(l.slug) },
+      ],
+    },
+  ],
+};
+---
+<Base
+  title={`${truncate(`${l.name}: ${l.tagline}`, 60)} · ${SITE_NAME}`}
+  description={truncate(`${l.tagline} ${l.description}`.replace(/\s+/g, ' '), 155)}
+  path={`/${l.slug}/`}
+  jsonLd={jsonLd}
+>
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <ol>
+      <li><a href="/">Browse</a></li>
+      <li><a href={catPath}>{l.category}</a></li>
+      <li aria-current="page">{l.name}</li>
+    </ol>
+  </nav>
+
+  <header class="app-head">
+    <Avatar name={l.name} slug={l.slug} large />
+    <div>
+      <h1>{l.name}</h1>
+      <p class="tag">{l.tagline}</p>
+    </div>
+  </header>
+  <div class="app-meta">
+    <a class="btn btn-primary" href={l.url} rel={l.verified ? undefined : 'ugc nofollow'}>
+      Visit {host}<span aria-hidden="true">↗</span>
+    </a>
+    <a class="chip" href={catPath}>{l.category}</a>
+    {l.verified
+      ? <span class="chip"><span class="leaf"><Icon name="leaf" />Verified owner</span></span>
+      : <span class="chip chip-warn">Not verified yet</span>}
+  </div>
+
+  <div class="layout">
+    <article>
+      <h2 class="sr-only">About {l.name}</h2>
+      <div class="prose">
+        {paragraphs(l.description).map((p) => <p>{p}</p>)}
+      </div>
+      <dl class="facts">
+        <dt>Website</dt><dd>{host}</dd>
+        <dt>Listed</dt><dd><time datetime={l.createdAt}>{day(l.createdAt)}</time></dd>
+        <dt>Updated</dt><dd><time datetime={l.updatedAt}>{day(l.updatedAt)}</time></dd>
+        <dt>Maker</dt><dd><a href={`https://github.com/${l.author}`}>@{l.author}</a></dd>
+        {l.issue !== null && <><dt>Source</dt><dd><a href={`https://github.com/${REPO}/issues/${l.issue}`}>Submission #{l.issue}</a></dd></>}
+      </dl>
+    </article>
+
+    <aside class="panel" aria-labelledby="own-title">
+      <h2 id="own-title">Is this your app?</h2>
+      {l.verified ? (
+        <div class="status status-ok"><Icon name="leaf" /><span>Ownership verified{l.verifiedAt && ` on ${day(l.verifiedAt)}`}. The link above is followed by search engines.</span></div>
+      ) : (
+        <div class="status status-wait"><Icon name="clock" /><span>The link above is <code>ugc nofollow</code> until {host} shows the tag or the badge. Last check: {l.checkNote}.</span></div>
+      )}
+      <p>
+        Keep one of these on the page at {host}. After adding it, edit your submission issue (any small change) to check
+        again. Every listing is rechecked weekly.
+      </p>
+      <Snippet id="meta-snippet" label="Meta tag, inside <head>" code={metaTag(l.slug)} />
+      <Snippet id="badge-snippet" label="Or the badge, anywhere on the page" code={badgeHtml(l.slug)}>
+        <img class="badge-preview" src="/badge.svg" alt="Listed on Linkseed badge preview" width="168" height="40" />
+      </Snippet>
+    </aside>
+  </div>
+</Base>
+
+<script>
+  import '../scripts/copy.ts';
+</script>

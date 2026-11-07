@@ -1,1 +1,4 @@
 .factory/
+node_modules/
+dist/
+.astro/

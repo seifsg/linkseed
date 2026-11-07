@@ -1,0 +1,15 @@
+{
+  "slug": "hostile",
+  "issue": 14,
+  "author": "example-maker",
+  "createdAt": "2026-11-07T11:10:00.000Z",
+  "updatedAt": "2026-11-07T11:10:00.000Z",
+  "verified": false,
+  "verifiedAt": null,
+  "checkNote": "<i>note</i>",
+  "name": "<script>alert(1)</script> Evil",
+  "url": "https://example.net/?q=\"><script>alert(3)</script>",
+  "tagline": "\"><img src=x onerror=alert(2)> tagline",
+  "description": "</script><script>alert(4)</script>\n\n<b>bold?</b> & ampersand",
+  "category": "Other"
+}

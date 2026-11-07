@@ -1,0 +1,85 @@
+---
+/** How it works: the three steps, content rules, how verification works and common questions. */
+import Base from '../layouts/Base.astro';
+import Snippet from '../components/Snippet.astro';
+import { LIMITS, REQUIRE_APPROVAL, SITE_NAME, SUBMIT_URL } from '../config.ts';
+import { badgeHtml, metaTag } from '../lib/listing.ts';
+
+const faq: [string, string][] = [
+  [
+    'Why does my link start as nofollow?',
+    'Search engines ask sites to mark links that users add. Linkseed does that until your site shows it belongs to you. It keeps Linkseed from turning into a link farm, which keeps your link worth having.',
+  ],
+  ['Do I have to show the badge?', 'No. The meta tag alone is enough. The badge is there if you like to show where you are listed.'],
+  [
+    'How do I change or remove my listing?',
+    'Edit your submission issue and the page updates within minutes. To remove it, comment on the issue and a maintainer takes it down.',
+  ],
+  [
+    'Does Linkseed post my app anywhere else?',
+    'No. Linkseed never submits to or posts on other sites. The only request it makes to your site is one page load to look for the tag or badge.',
+  ],
+  ['Is it really free?', 'Yes. No accounts, no payments, no queue to skip.'],
+];
+---
+<Base
+  title={`How ${SITE_NAME} works: free listing pages, earned backlinks`}
+  description="Submit your app through a GitHub form, get a public listing page within minutes, and verify your site to turn its link into a followed backlink."
+  path="/submit/"
+  nav="submit"
+  jsonLd={{
+    '@type': 'FAQPage',
+    mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })),
+  }}
+>
+  <section class="page">
+    <h1>How {SITE_NAME} works</h1>
+    <p class="lede">
+      Every maker gets a free public page for their app or website. The link starts as <code>ugc nofollow</code> and becomes
+      a followed link once your site shows it is yours.
+    </p>
+    <ol class="steps">
+      <li>
+        <h2 class="h3">Fill in the form</h2>
+        <p>Name, link, a one-line tagline, a short description and a category. A GitHub account is all you need.</p>
+      </li>
+      <li>
+        <h2 class="h3">Get your page</h2>
+        <p>
+          A GitHub Action checks the submission and publishes your page{REQUIRE_APPROVAL ? ' once a maintainer approves it' : ' within minutes'}.
+          If something is off, it comments with every fix needed.
+        </p>
+      </li>
+      <li>
+        <h2 class="h3">Verify your site</h2>
+        <p>Add the meta tag or the badge from your page, then edit your submission to check again. Verified links are followed.</p>
+      </li>
+    </ol>
+    <p><a class="btn btn-primary" href={SUBMIT_URL}>Submit your app</a></p>
+
+    <h2>Content rules</h2>
+    <ul class="rules">
+      <li>Your own app, tool, game or website, at a public <code>https://</code> address.</li>
+      <li>No gambling or betting, adult content, alcohol or drugs, fortune-telling, payday lending or scams.</li>
+      <li>One listing per address. Up to {LIMITS.perAuthor} listings per GitHub account, and the account must be at least {LIMITS.accountDays} days old.</li>
+      <li>Maintainers remove listings that break these rules.</li>
+    </ul>
+
+    <h2>Verify ownership</h2>
+    <p>Put one of these on the page you submitted. Your listing page shows them with your own slug filled in.</p>
+    <Snippet id="meta-example" label="Meta tag, inside <head>" code={metaTag('your-slug')} />
+    <Snippet id="badge-example" label="Or the badge, anywhere on the page" code={badgeHtml('your-slug')}>
+      <img class="badge-preview" src="/badge.svg" alt="Listed on Linkseed badge preview" width="168" height="40" />
+    </Snippet>
+    <p>We load your page once per check, follow redirects over <code>https</code>, and read up to the first 1 MB of HTML. Every listing is rechecked weekly; if the tag and badge are gone, the link goes back to <code>ugc nofollow</code>.</p>
+
+    <h2>Questions</h2>
+    <dl class="faq">
+      {faq.map(([q, a]) => <><dt>{q}</dt><dd>{a}</dd></>)}
+    </dl>
+  </section>
+</Base>
+
+<script>
+  import '../scripts/copy.ts';
+</script>

@@ -1,0 +1,9 @@
+---
+/** Letter avatar tinted by a hue derived from the slug: no third-party logo requests. */
+import { hue } from '../lib/text.ts';
+
+interface Props { name: string; slug: string; large?: boolean }
+const { name, slug, large = false } = Astro.props;
+const letter = [...name.trim()][0]?.toUpperCase() ?? '?';
+---
+<span class:list={['avatar', { 'avatar-lg': large }]} style={`--h:${hue(slug)}`} aria-hidden="true">{letter}</span>

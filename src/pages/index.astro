@@ -1,0 +1,72 @@
+---
+/** Home: what Linkseed is, newest listings first, search and category filter. */
+import Base from '../layouts/Base.astro';
+import Grid from '../components/Grid.astro';
+import Icon from '../components/Icon.astro';
+import { SITE_NAME, SITE_URL, SUBMIT_URL } from '../config.ts';
+import { categorySlug } from '../lib/listing.ts';
+import { loadAll } from '../lib/store.ts';
+
+const listings = loadAll();
+const verified = listings.filter((l) => l.verified).length;
+const counts = Object.entries(
+  listings.reduce<Record<string, number>>((m, l) => ({ ...m, [l.category]: (m[l.category] ?? 0) + 1 }), {}),
+).sort(([a], [b]) => a.localeCompare(b));
+const description =
+  'List your app or website for free and get a clean, fast page that links to it. Verify you own the site and the link becomes a followed backlink.';
+---
+<Base
+  title={`${SITE_NAME}: free listing pages and earned backlinks for makers`}
+  description={description}
+  path="/"
+  nav="browse"
+  jsonLd={{ '@type': 'WebSite', name: SITE_NAME, url: `${SITE_URL}/`, description }}
+>
+  <section class="hero">
+    <div>
+      <p class="eyebrow">Free for every maker</p>
+      <h1>Plant your link. Let it grow.</h1>
+      <p>
+        List your app or website and get a fast, clean page that links to it. Add one tag to your site to show it is yours,
+        and the link becomes a followed backlink.
+      </p>
+      <div class="actions">
+        <a class="btn btn-primary" href={SUBMIT_URL}>Submit your app</a>
+        <a class="btn btn-ghost" href="/submit/">How it works</a>
+      </div>
+      <p class="stats"><strong>{listings.length}</strong> apps listed · <strong>{verified}</strong> verified</p>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <div class="mock">
+        <div class="card-top">
+          <span class="avatar" style="--h:132">Y</span>
+          <div><span class="mock-name">Your app</span><span class="host">yourapp.com</span></div>
+        </div>
+        <p>The one line that makes people click.</p>
+        <div class="mock-flow">
+          <span class="chip chip-warn">ugc nofollow</span>
+          <span class="mock-arrow">add tag</span>
+          <span class="chip"><span class="leaf"><Icon name="leaf" />followed</span></span>
+        </div>
+      </div>
+      <img class="mock-badge" src="/badge.svg" alt="" width="168" height="40" />
+    </div>
+  </section>
+
+  {counts.length > 0 && (
+    <nav class="section" aria-label="Categories">
+      <ul class="chips">
+        {counts.map(([c, n]) => <li><a class="chip" href={`/c/${categorySlug(c)}/`}>{c} <span class="n">{n}</span></a></li>)}
+      </ul>
+    </nav>
+  )}
+
+  <section class="section" aria-labelledby="latest">
+    <div class="section-head"><h2 id="latest">Latest apps</h2></div>
+    <Grid listings={listings} filters />
+  </section>
+</Base>
+
+<script>
+  import '../scripts/grid.ts';
+</script>

@@ -1,0 +1,27 @@
+{
+  "name": "linkseed",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Free listing pages for makers, with links earned by verifying site ownership.",
+  "engines": {
+    "node": ">=22.23.4"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "start": "astro build && astro preview --port 4173",
+    "check": "astro check",
+    "test": "node --test \"test/*.test.ts\"",
+    "sync": "node scripts/sync.ts",
+    "recheck": "node scripts/recheck.ts"
+  },
+  "dependencies": {
+    "astro": "^7.4.7"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@types/node": "^24.19.2",
+    "typescript": "^6.0.3"
+  }
+}

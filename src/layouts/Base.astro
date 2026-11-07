@@ -1,0 +1,76 @@
+---
+/** Page shell: SEO head (title, description, canonical, Open Graph, Twitter, JSON-LD), header and footer. */
+import '../styles/global.css';
+import Icon from '../components/Icon.astro';
+import { REPO, SITE_NAME, SITE_URL, SUBMIT_URL } from '../config.ts';
+
+interface Props {
+  title: string;
+  description: string;
+  path: string;
+  jsonLd?: Record<string, unknown>;
+  nav?: 'browse' | 'submit';
+  noindex?: boolean;
+}
+const { title, description, path, jsonLd, nav, noindex = false } = Astro.props;
+const canonical = new URL(path, SITE_URL).href;
+const image = `${SITE_URL}/og.png`;
+// JSON-LD sits inside a script tag: escape `<` so field text can never close it.
+const ld = jsonLd && JSON.stringify({ '@context': 'https://schema.org', ...jsonLd }).replace(/</g, '\\u003c');
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="linkseed" content="linkseed" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={image} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Linkseed: free listing pages for makers" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image} />
+    <meta name="theme-color" content="#fbfaf6" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1511" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap.xml" />
+    {ld && <script is:inline type="application/ld+json" set:html={ld} />}
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="top">
+      <div class="wrap">
+        <a class="brand" href="/"><Icon name="sprout" />{SITE_NAME}</a>
+        <nav class="nav" aria-label="Main">
+          <a class="wide" href="/" aria-current={nav === 'browse' ? 'page' : undefined}>Browse</a>
+          <a href="/submit/" aria-current={nav === 'submit' ? 'page' : undefined}>How it works</a>
+          <a class="btn btn-primary" href={SUBMIT_URL}>Submit</a>
+        </nav>
+      </div>
+    </header>
+    <main id="main" class="wrap">
+      <slot />
+    </main>
+    <footer class="foot">
+      <div class="wrap">
+        <span>Free listing pages for makers. Links you earn by verifying your site.</span>
+        <span>
+          <a href={`https://github.com/${REPO}`}>Source on GitHub</a> ·
+          <a href="/sitemap.xml">Sitemap</a> ·
+          Built with <a href="https://softwarefactory.company/">AI Software Factory</a> by Seif
+        </span>
+      </div>
+    </footer>
+  </body>
+</html>

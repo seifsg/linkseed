@@ -5,5 +5,6 @@ import { SITE_URL } from './src/config.ts';
 export default defineConfig({
   site: SITE_URL,
   trailingSlash: 'always',
-  build: { format: 'directory' },
+  // Inline the one small stylesheet: no render-blocking request before first paint.
+  build: { format: 'directory', inlineStylesheets: 'always' },
 });

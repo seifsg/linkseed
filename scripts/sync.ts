@@ -4,7 +4,7 @@
  * Dry runs touch no GitHub, git or network: they print the plan only.
  */
 import { readFileSync } from 'node:fs';
-import { REQUIRE_APPROVAL } from '../src/config.ts';
+import { DEPLOY_WORKFLOW, REQUIRE_APPROVAL } from '../src/config.ts';
 import { commitAndPush } from '../src/lib/git.ts';
 import { github, type GitHub, type Issue } from '../src/lib/github.ts';
 import { checkOwnership } from '../src/lib/proof.ts';
@@ -37,7 +37,7 @@ async function dry(file: string): Promise<void> {
     accountCreated: async () => issue.user?.created_at ?? '',
     verify: async () => ({ verified: false, reached: false, note: 'dry run, site not loaded' }),
   });
-  console.log(JSON.stringify({ ...plan, deploy: Boolean(plan.write ?? plan.remove) }, null, 2));
+  console.log(JSON.stringify({ ...plan, deploy: plan.write ?? plan.remove ? `push, then dispatch ${DEPLOY_WORKFLOW}` : 'none' }, null, 2));
 }
 
 async function main(): Promise<void> {

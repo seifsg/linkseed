@@ -2,7 +2,9 @@ import assert from 'node:assert/strict';
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { after, before, test } from 'node:test';
+import type { Listing } from '../src/lib/listing.ts';
 import { checkOwnership, hasOwnership } from '../src/lib/proof.ts';
+import { applyCheck } from '../src/lib/recheck.ts';
 
 const SLUG = 'pebble-timer';
 const page = (head: string, body = ''): string => `<!doctype html><html><head>${head}</head><body>${body}</body></html>`;
@@ -76,4 +78,14 @@ test('slug must match exactly, look-alike links do not count', () => {
   assert.equal(hasOwnership(`<a href="https://evil.dev/linkseed.beast.dev/${SLUG}/">`, SLUG), false);
   assert.equal(hasOwnership(`<a data-href="x" href=https://linkseed.beast.dev/${SLUG}/>`, SLUG), true);
   assert.equal(hasOwnership(`see https://linkseed.beast.dev/${SLUG}/ in text`, SLUG), false);
+});
+
+test('weekly recheck flips both ways, an outage never revokes', () => {
+  const l = { slug: SLUG, verified: false, verifiedAt: null, checkNote: '', updatedAt: 'then' } as unknown as Listing;
+  const on = applyCheck(l, { verified: true, reached: true, note: 'meta tag or badge found' }, 'now');
+  assert.deepEqual([on?.verified, on?.verifiedAt], [true, 'now']);
+  const off = applyCheck(on!, { verified: false, reached: true, note: 'no tag' }, 'later');
+  assert.deepEqual([off?.verified, off?.verifiedAt, off?.checkNote], [false, null, 'no tag']);
+  assert.equal(applyCheck(on!, { verified: false, reached: false, note: 'timed out' }, 'later'), null);
+  assert.equal(applyCheck(l, { verified: false, reached: true, note: 'no tag' }, 'later'), null);
 });

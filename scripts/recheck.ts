@@ -1,13 +1,13 @@
 /**
  * Weekly ownership recheck of every listing (run by the Action on a schedule).
- * A found tag or badge turns the link dofollow; a page that loads without them turns it back to nofollow.
- * An unreachable page never revokes: a short outage should not cost a maker their link.
+ * Flip rules live in `applyCheck` (src/lib/recheck.ts).
  * Usage: `npm run recheck` or `npm run recheck -- --dry` (prints, writes nothing).
  */
 import { commitAndPush } from '../src/lib/git.ts';
 import { github } from '../src/lib/github.ts';
 import type { Listing } from '../src/lib/listing.ts';
 import { checkOwnership, type Ownership } from '../src/lib/proof.ts';
+import { applyCheck } from '../src/lib/recheck.ts';
 import { loadAll, save } from '../src/lib/store.ts';
 
 const dry = process.argv.includes('--dry');
@@ -34,11 +34,11 @@ async function main(): Promise<void> {
   let flips = 0;
   listings.forEach((l, i) => {
     const c = results[i]!;
-    const flip = c.verified !== l.verified && (c.verified || c.reached);
-    console.log(`${l.slug}: ${c.verified ? 'verified' : 'not verified'} (${c.note})${flip ? ` -> now ${c.verified ? 'dofollow' : 'nofollow'}` : ''}`);
-    if (!flip) return;
+    const next = applyCheck(l, c, now);
+    console.log(`${l.slug}: ${c.verified ? 'verified' : 'not verified'} (${c.note})${next ? ` -> now ${c.verified ? 'dofollow' : 'nofollow'}` : ''}`);
+    if (!next) return;
     flips++;
-    if (!dry) save({ ...l, verified: c.verified, verifiedAt: c.verified ? now : null, checkNote: c.note, updatedAt: now });
+    if (!dry) save(next);
   });
   console.log(`${flips} of ${listings.length} changed${dry ? ' (dry run, nothing written)' : ''}`);
   if (!dry && commitAndPush('listings', `listing: weekly ownership recheck (${flips} changed)`)) await github().deploy();

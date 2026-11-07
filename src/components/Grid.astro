@@ -1,6 +1,7 @@
 ---
 /** Listing grid. With JS: search box + category select (hidden without JS, where the plain list and category links work). */
 import Card from './Card.astro';
+import Icon from './Icon.astro';
 import { SUBMIT_URL } from '../config.ts';
 import type { Listing } from '../lib/listing.ts';
 
@@ -10,6 +11,7 @@ const cats = [...new Set(listings.map((l) => l.category))].sort();
 ---
 {listings.length === 0 ? (
   <div class="empty">
+    <Icon name="sprout" />
     <p>No apps here yet. Yours could be the first.</p>
     <a class="btn btn-primary" href={SUBMIT_URL}>Submit your app</a>
   </div>

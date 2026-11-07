@@ -52,7 +52,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 [hidden] { display: none !important; }
 
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; scrollbar-gutter: stable; }
 
 body {
   margin: 0;
@@ -183,8 +183,9 @@ a.chip:hover { color: var(--ink); box-shadow: inset 0 0 0 1px var(--accent); }
 .card .host { color: var(--muted); font-size: 0.85rem; overflow-wrap: anywhere; }
 .card p { margin: 0; color: var(--text); flex: 1; overflow-wrap: anywhere; }
 .card-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 0.85rem; color: var(--muted); }
-.empty { padding: 40px 24px; text-align: center; border: 1px dashed var(--line); border-radius: var(--radius); color: var(--muted); }
-.empty p { margin: 0 0 16px; }
+.empty { padding: 44px 24px; text-align: center; border: 1.5px dashed color-mix(in srgb, var(--accent) 35%, var(--line)); border-radius: var(--radius); background: var(--surface); color: var(--text); }
+.empty svg { width: 40px; height: 40px; margin: 0 auto 12px; display: block; }
+.empty p { margin: 0 0 16px; font: 600 1.15rem/1.3 var(--serif); color: var(--ink); }
 
 /* Listing page */
 .crumbs { margin: 28px 0 0; font-size: 0.9rem; color: var(--muted); }
@@ -214,7 +215,7 @@ a.chip:hover { color: var(--ink); box-shadow: inset 0 0 0 1px var(--accent); }
 .snippet-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; font-size: 0.88rem; font-weight: 600; color: var(--text); }
 .snippet pre {
   margin: 0; padding: 12px 14px; background: var(--sunk); border: 1px solid var(--line); border-radius: 10px;
-  font: 0.82rem/1.5 var(--mono); white-space: pre-wrap; word-break: break-all; color: var(--text);
+  font: 0.8rem/1.55 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text);
 }
 .copy {
   min-height: 32px; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface);

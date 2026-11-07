@@ -41,4 +41,6 @@ export function pickSlug(name: string, issue: number, taken: ReadonlySet<string>
 /** Snippets a maker adds to their site to verify ownership. */
 export const metaTag = (slug: string): string => `<meta name="linkseed" content="${slug}">`;
 export const badgeHtml = (slug: string): string =>
-  `<a href="${listingUrl(slug)}"><img src="${SITE_URL}/badge.svg" alt="Listed on Linkseed" width="168" height="40"></a>`;
+  `<a href="${listingUrl(slug)}">
+  <img src="${SITE_URL}/badge.svg" alt="Listed on Linkseed" width="168" height="40">
+</a>`;

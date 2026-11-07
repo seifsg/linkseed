@@ -4,14 +4,15 @@
 export const slugify = (s: string): string =>
   s
     .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
+    .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .slice(0, 48)
     .replace(/^-+|-+$/g, '');
 
-/** Lowercase word tokens, for blocked-term matching on text and host names. */
-export const words = (s: string): string[] => s.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+/** Lowercase ascii word tokens (accents folded), for blocked-term matching on text and host names. */
+export const words = (s: string): string[] =>
+  s.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
 
 /** One key per page: host without `www.`, path without trailing slash, no query or hash. Used to spot duplicates. */
 export const normUrl = (u: URL): string =>

@@ -1,4 +1,4 @@
-import { BLOCKED, CATEGORIES, LIMITS, type Category } from '../config.ts';
+import { BLOCKED_STEMS, BLOCKED_WORDS, CATEGORIES, LIMITS, type Category } from '../config.ts';
 import { listingUrl, type Draft, type Listing } from './listing.ts';
 import type { Fields } from './parse.ts';
 import { normUrl, words } from './text.ts';
@@ -13,14 +13,16 @@ export interface ValidateCtx {
   now: Date;
 }
 
-export type Validation = { ok: true; data: Draft } | { ok: false; errors: string[] };
+/** `contested`: an unverified listing already holds this URL; the submitter may take it over by verifying. */
+export type Validation = { ok: true; data: Draft; contested?: Listing } | { ok: false; errors: string[] };
 
 const DAY_MS = 86_400_000;
-// Control characters except tab and newline never belong in listing text.
-const CONTROL = /[\u0000-\u0008\u000b-\u001f\u007f]/g;
+// Control, zero-width and bidi-override characters never belong in listing text (they hide words and spoof text).
+const CONTROL = /[\u0000-\u0008\u000b-\u001f\u007f\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u2069\ufeff]/g;
 const oneLine = (s: string): string => s.replace(CONTROL, '').replace(/\s+/g, ' ').trim();
 const multiLine = (s: string): string => s.replace(CONTROL, '').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
 const isCategory = (c: string): c is Category => (CATEGORIES as readonly string[]).includes(c);
+const blocked = (w: string): boolean => BLOCKED_WORDS.has(w) || BLOCKED_STEMS.some((s) => w.includes(s));
 
 /** Length rule as a readable reason, or null. */
 const length = (label: string, v: string, [min, max]: readonly [number, number]): string | null =>
@@ -38,7 +40,7 @@ export function checkUrl(raw: string): URL | string {
   if (u.protocol !== 'https:') return 'URL must start with https://.';
   if (u.username || u.password) return 'URL must not contain a username or password.';
   if (u.port) return 'URL must not set a port.';
-  const h = u.hostname;
+  const h = u.hostname.replace(/\.$/, '');
   const local = /(^|\.)(localhost|local|internal|lan|home|test|example|invalid|onion)$/.test(h);
   if (!h.includes('.') || h.startsWith('[') || /^[\d.]+$/.test(h) || local) {
     return 'URL must use a public domain name, not an IP address or a local host.';
@@ -57,7 +59,7 @@ export function validate(f: Fields, ctx: ValidateCtx): Validation {
   const dup = typeof u === 'string' ? undefined : others.find((l) => normUrl(new URL(l.url)) === normUrl(u));
   const banned = [name, tagline, description, typeof u === 'string' ? '' : u.hostname]
     .flatMap(words)
-    .filter((w) => BLOCKED.has(w));
+    .filter(blocked);
   const ageDays = (ctx.now.getTime() - Date.parse(ctx.accountCreated)) / DAY_MS;
 
   const errors = [
@@ -68,7 +70,7 @@ export function validate(f: Fields, ctx: ValidateCtx): Validation {
     isCategory(category) ? null : `Category must be one of: ${CATEGORIES.join(', ')}.`,
     f.agree ? null : 'Tick the agreement box.',
     banned.length ? `Linkseed lists halal content only; remove: ${[...new Set(banned)].join(', ')}.` : null,
-    dup ? `This URL is already listed at ${listingUrl(dup.slug)}.` : null,
+    dup?.verified ? `This URL is already listed by its verified owner at ${listingUrl(dup.slug)}.` : null,
     others.filter((l) => l.author === ctx.author).length >= LIMITS.perAuthor
       ? `One GitHub account can hold up to ${LIMITS.perAuthor} listings.`
       : null,
@@ -78,5 +80,6 @@ export function validate(f: Fields, ctx: ValidateCtx): Validation {
   ].filter((e): e is string => e !== null);
 
   if (errors.length || typeof u === 'string' || !isCategory(category)) return { ok: false, errors };
-  return { ok: true, data: { name, url: `${u.origin}${u.pathname}${u.search}`, tagline, description, category } };
+  const data: Draft = { name, url: `${u.origin}${u.pathname}${u.search}`, tagline, description, category };
+  return dup ? { ok: true, data, contested: dup } : { ok: true, data };
 }

@@ -68,6 +68,13 @@ export async function reconcile(issue: Issue, ctx: ReconcileCtx): Promise<Plan> 
 
   const slug = own?.slug ?? pickSlug(v.data.name, issue.number, new Set(ctx.listings.map((l) => l.slug)));
   const check = await ctx.verify(v.data.url, slug);
+  if (v.contested && !check.verified) {
+    plan.comment = messages.contested(v.contested, slug);
+    labels([LABELS.invalid], []);
+    return plan;
+  }
+  // A verified owner takes over an unverified listing of the same URL.
+  if (v.contested) plan.remove = v.contested.slug;
   const now = ctx.now.toISOString();
   const next: Listing = {
     slug,

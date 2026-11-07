@@ -42,13 +42,16 @@ export const LABELS = {
   approved: 'approved',
 } as const;
 
-/** Whole words that keep a submission out: gambling, adult, intoxicants, fortune-telling, predatory lending. */
-export const BLOCKED = new Set([
-  'casino', 'gambling', 'gamble', 'bet', 'bets', 'betting', 'bookmaker', 'sportsbook', 'poker', 'slots',
-  'lottery', 'jackpot', 'roulette', 'blackjack', 'porn', 'porno', 'xxx', 'nsfw', 'escort', 'escorts',
-  'hookup', 'onlyfans', 'sex', 'alcohol', 'beer', 'wine', 'liquor', 'vodka', 'whiskey', 'brewery',
-  'cannabis', 'marijuana', 'weed', 'vape', 'tarot', 'horoscope', 'astrology', 'psychic', 'payday',
+/** Halal content only. Short words that also hide inside harmless ones match as whole words. */
+export const BLOCKED_WORDS = new Set([
+  'bet', 'bets', 'gamble', 'slots', 'sex', 'xxx', 'nsfw', 'hookup', 'beer', 'wine', 'weed', 'vape',
 ]);
+/** Stems that match anywhere inside a word or domain (`mycasino.com`). */
+export const BLOCKED_STEMS = [
+  'casino', 'gambling', 'betting', 'bookmaker', 'sportsbook', 'poker', 'lottery', 'jackpot', 'roulette',
+  'blackjack', 'porn', 'onlyfans', 'escort', 'alcohol', 'liquor', 'vodka', 'whisk', 'brewery', 'cannabis',
+  'marijuana', 'tarot', 'horoscope', 'astrolog', 'psychic', 'payday',
+];
 
 /** Issue-form field labels (`### <label>` in the issue body) mapped to listing fields. */
 export const FORM_FIELDS: Readonly<Record<string, 'name' | 'url' | 'tagline' | 'description' | 'category' | 'agree'>> = {

@@ -66,6 +66,8 @@ test('URL must be a public https domain', () => {
     'https://127.0.0.1/',
     'https://[::1]/',
     'https://localhost/',
+    'https://localhost./',
+    'https://metadata.google.internal./',
     'https://printer.local/',
     'https://intranet/',
     `https://pebble.app/${'a'.repeat(200)}`,
@@ -77,12 +79,17 @@ test('URL must be a public https domain', () => {
 test('halal rule blocks terms in text and host, not inside other words', () => {
   assert.match(errors(body({ tagline: 'Live betting odds for every match' }))[0] ?? '', /halal.*betting/);
   assert.match(errors(body({ url: 'https://casino.example.com/' }))[0] ?? '', /halal.*casino/);
+  assert.match(errors(body({ url: 'https://mycasino-deals.com/' }))[0] ?? '', /halal.*mycasino/);
+  assert.match(errors(body({ tagline: 'Best ca​sino odds in town' }))[0] ?? '', /halal.*casino/);
   assert.deepEqual(errors(body({ tagline: 'Alphabet soup for better habits' })), []);
 });
 
 test('duplicates, per-author cap and account age', () => {
-  const dup = ctx({ listings: [listing({ slug: 'pebble', issue: 3, url: 'https://pebbletimer.app' })] });
-  assert.match(errors(body({ url: 'https://www.PebbleTimer.app/' }), dup)[0] ?? '', /already listed at .*\/pebble\//);
+  const held = listing({ slug: 'pebble', issue: 3, url: 'https://pebbletimer.app' });
+  assert.match(errors(body({ url: 'https://www.PebbleTimer.app/' }), ctx({ listings: [{ ...held, verified: true }] }))[0] ?? '', /verified owner at .*\/pebble\//);
+  // An unverified holder does not block: the new submitter may take it over by verifying.
+  const open = validate(parse(body({ url: 'https://www.PebbleTimer.app/' })), ctx({ listings: [held] }));
+  assert.ok(open.ok && open.contested?.slug === 'pebble');
   // Editing your own listing is not a duplicate of itself.
   assert.deepEqual(errors(body(), ctx({ listings: [listing({ issue: 7, url: 'https://pebbletimer.app/' })] })), []);
 

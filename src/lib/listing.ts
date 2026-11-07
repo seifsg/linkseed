@@ -30,10 +30,12 @@ export const categorySlug = (c: string): string => slugify(c);
 
 export const byNewest = (a: Listing, b: Listing): number => b.createdAt.localeCompare(a.createdAt);
 
-/** First free slug for a new listing: from the name, else suffixed with the issue number. Kept forever after. */
+/** First free slug for a new listing: from the name, else suffixed with the issue number (then a counter). Kept forever after. */
 export function pickSlug(name: string, issue: number, taken: ReadonlySet<string>): string {
   const base = slugify(name) || 'app';
-  return RESERVED.has(base) || taken.has(base) ? `${base}-${issue}` : base;
+  let slug = base;
+  for (let i = 1; RESERVED.has(slug) || taken.has(slug); i++) slug = i === 1 ? `${base}-${issue}` : `${base}-${issue}-${i}`;
+  return slug;
 }
 
 /** Snippets a maker adds to their site to verify ownership. */

@@ -12,6 +12,8 @@ const routes: Record<string, (res: import('node:http').ServerResponse) => void> 
   '/meta': (r) => r.writeHead(200, { 'content-type': 'text/html' }).end(page(`<meta content="${SLUG}" name="linkseed">`)),
   '/badge': (r) => r.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }).end(page('', `<a href='https://linkseed.beast.dev/${SLUG}'><img></a>`)),
   '/redirect': (r) => r.writeHead(301, { location: '/meta' }).end(),
+  '/away': (r) => r.writeHead(302, { location: 'https://elsewhere.dev/meta' }).end(),
+  '/loop': (r) => r.writeHead(302, { location: '/loop' }).end(),
   '/none': (r) => r.writeHead(200, { 'content-type': 'text/html' }).end(page('<meta name="linkseed" content="someone-else">')),
   '/missing': (r) => r.writeHead(404, { 'content-type': 'text/html' }).end(page(`<meta name="linkseed" content="${SLUG}">`)),
   '/json': (r) => r.writeHead(200, { 'content-type': 'application/json' }).end(`{"x":"<meta name=linkseed content=${SLUG}>"}`),
@@ -31,7 +33,9 @@ before(async () => {
 });
 after(() => server.close());
 
-const check = (path: string) => checkOwnership(`${base}${path}`, SLUG, { timeoutMs: 300, maxBytes: 2000 });
+// The local stand-in lives on 127.0.0.1, so the public-host guard is opened for these tests only.
+const open = async (): Promise<boolean> => true;
+const check = (path: string) => checkOwnership(`${base}${path}`, SLUG, { timeoutMs: 300, maxBytes: 2000, guard: open });
 
 test('meta tag in any attribute order verifies', async () => {
   assert.deepEqual(await check('/meta'), { verified: true, reached: true, note: 'meta tag or badge found' });
@@ -48,9 +52,22 @@ test('fails safe with a reason', async () => {
   assert.deepEqual(await check('/json'), { verified: false, reached: true, note: 'page is not HTML' });
   assert.deepEqual(await check('/slow'), { verified: false, reached: false, note: 'timed out after 0.3 s' });
   assert.equal((await check('/big')).verified, false, 'proof past the byte cap does not count');
-  const down = await checkOwnership('http://127.0.0.1:9/', SLUG, { timeoutMs: 300 });
+  assert.deepEqual(await check('/away'), { verified: false, reached: false, note: 'page redirects to another site' });
+  assert.deepEqual(await check('/loop'), { verified: false, reached: false, note: 'too many redirects' });
+  const down = await checkOwnership('http://127.0.0.1:9/', SLUG, { timeoutMs: 300, guard: open });
   assert.equal(down.reached, false);
   assert.match(down.note, /could not load|timed out/);
+});
+
+test('private and loopback hosts are never fetched', async () => {
+  assert.equal((await checkOwnership(`${base}/meta`, SLUG)).note, 'the address is not a public host');
+  assert.equal((await checkOwnership('https://localhost./', SLUG)).note, 'the address is not a public host');
+});
+
+test('hostile pages stay linear: 1 MB of unclosed tags scans fast', () => {
+  const t0 = performance.now();
+  assert.equal(hasOwnership('<meta<a '.repeat(125_000), SLUG), false);
+  assert.ok(performance.now() - t0 < 500, 'scan took too long');
 });
 
 test('slug must match exactly, look-alike links do not count', () => {
@@ -58,4 +75,5 @@ test('slug must match exactly, look-alike links do not count', () => {
   assert.equal(hasOwnership(`<a href="https://linkseed.beast.dev/${SLUG}-pro/">`, SLUG), false);
   assert.equal(hasOwnership(`<a href="https://evil.dev/linkseed.beast.dev/${SLUG}/">`, SLUG), false);
   assert.equal(hasOwnership(`<a data-href="x" href=https://linkseed.beast.dev/${SLUG}/>`, SLUG), true);
+  assert.equal(hasOwnership(`see https://linkseed.beast.dev/${SLUG}/ in text`, SLUG), false);
 });

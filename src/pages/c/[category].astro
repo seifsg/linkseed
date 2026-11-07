@@ -1,0 +1,42 @@
+---
+/** Category page: one static page per category that has listings (crawlable without JS). */
+import Base from '../../layouts/Base.astro';
+import Grid from '../../components/Grid.astro';
+import { SITE_NAME, SITE_URL } from '../../config.ts';
+import { categorySlug, type Listing } from '../../lib/listing.ts';
+import { loadAll } from '../../lib/store.ts';
+
+export function getStaticPaths() {
+  const all = loadAll();
+  return [...new Set(all.map((l) => l.category))].map((name) => ({
+    params: { category: categorySlug(name) },
+    props: { name, listings: all.filter((l) => l.category === name) },
+  }));
+}
+
+interface Props { name: string; listings: Listing[] }
+const { name, listings } = Astro.props;
+const path = `/c/${categorySlug(name)}/`;
+---
+<Base
+  title={`${name} apps and websites · ${SITE_NAME}`}
+  description={`${listings.length} ${name.toLowerCase()} ${listings.length === 1 ? 'app' : 'apps'} listed by their makers on ${SITE_NAME}.`}
+  path={path}
+  jsonLd={{
+    '@type': 'CollectionPage',
+    name: `${name} apps`,
+    url: `${SITE_URL}${path}`,
+    hasPart: listings.map((l) => ({ '@type': 'SoftwareApplication', name: l.name, url: `${SITE_URL}/${l.slug}/` })),
+  }}
+>
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <ol><li><a href="/">Browse</a></li><li aria-current="page">{name}</li></ol>
+  </nav>
+  <section class="page">
+    <h1>{name}</h1>
+    <p class="lede">{listings.length} {listings.length === 1 ? 'app' : 'apps'}, newest first.</p>
+  </section>
+  <section class="section" aria-label={`${name} apps`}>
+    <Grid listings={listings} />
+  </section>
+</Base>

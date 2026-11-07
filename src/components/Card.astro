@@ -1,0 +1,27 @@
+---
+/** One listing in a grid; data attributes feed the client-side filter. */
+import Avatar from './Avatar.astro';
+import Icon from './Icon.astro';
+import type { Listing } from '../lib/listing.ts';
+import { displayUrl } from '../lib/text.ts';
+
+interface Props { l: Listing }
+const { l } = Astro.props;
+const haystack = `${l.name} ${l.tagline} ${displayUrl(l.url)}`.toLowerCase();
+---
+<li data-text={haystack} data-cat={l.category}>
+  <a class="card" href={`/${l.slug}/`}>
+    <div class="card-top">
+      <Avatar name={l.name} slug={l.slug} />
+      <div>
+        <h3>{l.name}</h3>
+        <span class="host">{displayUrl(l.url)}</span>
+      </div>
+    </div>
+    <p>{l.tagline}</p>
+    <div class="card-foot">
+      <span>{l.category}</span>
+      {l.verified && <span class="leaf"><Icon name="leaf" />Verified</span>}
+    </div>
+  </a>
+</li>

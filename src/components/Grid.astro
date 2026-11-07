@@ -1,0 +1,36 @@
+---
+/** Listing grid. With JS: search box + category select (hidden without JS, where the plain list and category links work). */
+import Card from './Card.astro';
+import Icon from './Icon.astro';
+import { SUBMIT_URL } from '../config.ts';
+import type { Listing } from '../lib/listing.ts';
+
+interface Props { listings: Listing[]; filters?: boolean }
+const { listings, filters = false } = Astro.props;
+const cats = [...new Set(listings.map((l) => l.category))].sort();
+---
+{listings.length === 0 ? (
+  <div class="empty">
+    <Icon name="sprout" />
+    <p>No apps here yet. Yours could be the first.</p>
+    <a class="btn btn-primary" href={SUBMIT_URL}>Submit your app</a>
+  </div>
+) : (
+  <div data-grid>
+    {filters && (
+      <form class="filters" role="search" hidden>
+        <label class="sr-only" for="q">Search apps</label>
+        <input id="q" type="search" placeholder="Search apps" autocomplete="off" />
+        <label class="sr-only" for="cat">Category</label>
+        <select id="cat">
+          <option value="">All categories</option>
+          {cats.map((c) => <option value={c}>{c}</option>)}
+        </select>
+      </form>
+    )}
+    <p class="count" aria-live="polite"></p>
+    <ul class="grid">
+      {listings.map((l) => <Card l={l} />)}
+    </ul>
+  </div>
+)}

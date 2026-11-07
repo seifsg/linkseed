@@ -1,0 +1,15 @@
+{
+  "slug": "northwind-notes",
+  "issue": 12,
+  "author": "example-maker",
+  "createdAt": "2026-11-07T09:30:00.000Z",
+  "updatedAt": "2026-11-07T09:30:00.000Z",
+  "verified": true,
+  "verifiedAt": "2026-11-07T09:30:00.000Z",
+  "checkNote": "meta tag or badge found",
+  "name": "Northwind Notes",
+  "url": "https://example.com/notes",
+  "tagline": "Example fixture: a verified listing with a followed link.",
+  "description": "Example fixture used for local screenshots. Its owner added the Linkseed meta tag, so the outbound link carries no nofollow.",
+  "category": "Productivity"
+}

@@ -1,0 +1,18 @@
+{
+  "number": 13,
+  "state": "closed",
+  "state_reason": "completed",
+  "user": {
+    "login": "pebble-maker",
+    "created_at": "2024-02-01T00:00:00Z"
+  },
+  "labels": [
+    {
+      "name": "submission"
+    },
+    {
+      "name": "listed"
+    }
+  ],
+  "body": "### App name\n\nPebble Timer\n\n### URL\n\nhttps://example.org/\n\n### Tagline\n\nExample fixture: now with a new tagline.\n\n### Description\n\nEvery habit you keep plants a pebble.\n\nNo account, no streak shame.\n\n### Category\n\nProductivity\n\n### Agreement\n\n- [x] I own or maintain this site, and it follows the rules."
+}

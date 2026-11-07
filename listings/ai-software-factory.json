@@ -1,0 +1,15 @@
+{
+  "slug": "ai-software-factory",
+  "issue": null,
+  "author": "seifsg",
+  "createdAt": "2026-11-07T09:59:00.000Z",
+  "updatedAt": "2026-11-07T09:59:00.000Z",
+  "verified": false,
+  "verifiedAt": null,
+  "checkNote": "not checked yet",
+  "name": "AI Software Factory",
+  "url": "https://softwarefactory.company/",
+  "tagline": "Delivers apps, games and tools end to end in ten visible steps.",
+  "description": "A method and toolkit for building software with AI agents: ticket, analysis, three options, a challenge round, a plan, before and after evidence, build, verification, a draft pull request and an independent review.\n\nLinkseed was built with it.",
+  "category": "Developer tools"
+}

@@ -1,0 +1,41 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "linkseed",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "start"
+      ],
+      "port": 4173
+    },
+    {
+      "name": "linkseed-demo",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "astro",
+        "dev",
+        "--port",
+        "4322"
+      ],
+      "env": {
+        "LISTINGS_DIR": "test/fixtures/listings"
+      },
+      "port": 4322
+    },
+    {
+      "name": "linkseed-empty",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "astro",
+        "dev",
+        "--port",
+        "4323"
+      ],
+      "env": {
+        "LISTINGS_DIR": "test/fixtures/empty"
+      },
+      "port": 4323
+    }
+  ]
+}

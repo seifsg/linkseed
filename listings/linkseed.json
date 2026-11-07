@@ -1,0 +1,15 @@
+{
+  "slug": "linkseed",
+  "issue": null,
+  "author": "seifsg",
+  "createdAt": "2026-11-07T10:00:00.000Z",
+  "updatedAt": "2026-11-07T10:00:00.000Z",
+  "verified": false,
+  "verifiedAt": null,
+  "checkNote": "not checked yet",
+  "name": "Linkseed",
+  "url": "https://linkseed.beast.dev/",
+  "tagline": "Free listing pages for makers, with a link you earn by verifying your site.",
+  "description": "List your app or website through a short GitHub form and get a fast public page that links to it.\n\nThe link starts as ugc nofollow. Add a meta tag or the Linkseed badge to your site and the next check turns it into a followed link. No accounts, no payments, no queue.",
+  "category": "Marketing"
+}

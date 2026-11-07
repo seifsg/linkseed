@@ -1,0 +1,16 @@
+---
+/**
+ * Code snippet with a copy button (the button appears only when JS can copy).
+ * Lines wrap at spaces and hyphens; a longer token scrolls sideways, so the pre is focusable for keyboards.
+ */
+interface Props { id: string; label: string; code: string }
+const { id, label, code } = Astro.props;
+---
+<div class="snippet">
+  <div class="snippet-head">
+    <span id={`${id}-label`}>{label}</span>
+    <button class="copy" type="button" data-copy={id} aria-describedby={`${id}-label`} hidden>Copy</button>
+  </div>
+  <slot />
+  <pre tabindex="0"><code id={id}>{code}</code></pre>
+</div>

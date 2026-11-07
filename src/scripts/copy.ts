@@ -8,7 +8,7 @@ for (const btn of document.querySelectorAll<HTMLButtonElement>('button[data-copy
       await navigator.clipboard.writeText(code.textContent ?? '');
       btn.textContent = 'Copied';
     } catch {
-      btn.textContent = 'Press Ctrl+C';
+      btn.textContent = 'Selected';
       getSelection()?.selectAllChildren(code);
     }
     setTimeout(() => (btn.textContent = 'Copy'), 1800);

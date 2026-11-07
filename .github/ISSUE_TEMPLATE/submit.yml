@@ -1,0 +1,66 @@
+name: Submit your app
+description: Get a free Linkseed listing page that links to your app or website.
+title: "Submit: "
+labels: [submission]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Fill this in and a GitHub Action publishes your listing page within minutes. If anything needs fixing, it comments here with every reason; edit this issue to try again.
+        Your link starts as `ugc nofollow`. Add the meta tag or badge shown on your listing page to your site, then edit this issue, and it becomes a followed link.
+  - type: input
+    id: name
+    attributes:
+      label: App name
+      description: 2 to 60 characters.
+      placeholder: Pebble Timer
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: URL
+      description: The public page to link to. Must start with https://.
+      placeholder: https://pebbletimer.app
+    validations:
+      required: true
+  - type: input
+    id: tagline
+    attributes:
+      label: Tagline
+      description: One line, 10 to 90 characters.
+      placeholder: A calm focus timer that lives in your menu bar.
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Plain text, 30 to 600 characters. Leave a blank line between paragraphs.
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - Developer tools
+        - Productivity
+        - Design
+        - Education
+        - Writing
+        - Business
+        - Marketing
+        - Health
+        - Lifestyle
+        - Games
+        - Other
+    validations:
+      required: true
+  - type: checkboxes
+    id: agree
+    attributes:
+      label: Agreement
+      options:
+        - label: I own or maintain this site, and it has no gambling or betting, adult content, alcohol or drugs, fortune-telling, payday lending or scams.
+          required: true

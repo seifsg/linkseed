@@ -1,5 +1,8 @@
 ---
-/** Code snippet with a copy button (the button appears only when JS can copy). */
+/**
+ * Code snippet with a copy button (the button appears only when JS can copy).
+ * Lines break only at spaces; a longer token scrolls sideways, so the pre is focusable for keyboards.
+ */
 interface Props { id: string; label: string; code: string }
 const { id, label, code } = Astro.props;
 ---
@@ -9,5 +12,5 @@ const { id, label, code } = Astro.props;
     <button class="copy" type="button" data-copy={id} aria-describedby={`${id}-label`} hidden>Copy</button>
   </div>
   <slot />
-  <pre><code id={id}>{code}</code></pre>
+  <pre tabindex="0"><code id={id}>{code}</code></pre>
 </div>

@@ -82,6 +82,8 @@ test('halal rule blocks terms in text and host, not inside other words', () => {
   assert.match(errors(body({ url: 'https://mycasino-deals.com/' }))[0] ?? '', /halal.*mycasino/);
   assert.match(errors(body({ tagline: 'Best ca​sino odds in town' }))[0] ?? '', /halal.*casino/);
   assert.deepEqual(errors(body({ tagline: 'Alphabet soup for better habits' })), []);
+  assert.deepEqual(errors(body({ name: 'Whisk Recipes', tagline: 'Whisking up dinner in ten minutes' })), []);
+  assert.match(errors(body({ tagline: 'Rare whiskey tasting notes' }))[0] ?? '', /halal.*whiskey/);
 });
 
 test('duplicates, per-author cap and account age', () => {

@@ -16,6 +16,7 @@ const routes: Record<string, (res: import('node:http').ServerResponse) => void> 
   '/redirect': (r) => r.writeHead(301, { location: '/meta' }).end(),
   '/away': (r) => r.writeHead(302, { location: 'https://elsewhere.dev/meta' }).end(),
   '/loop': (r) => r.writeHead(302, { location: '/loop' }).end(),
+  '/busy': (r) => r.writeHead(503).end(),
   '/none': (r) => r.writeHead(200, { 'content-type': 'text/html' }).end(page('<meta name="linkseed" content="someone-else">')),
   '/missing': (r) => r.writeHead(404, { 'content-type': 'text/html' }).end(page(`<meta name="linkseed" content="${SLUG}">`)),
   '/json': (r) => r.writeHead(200, { 'content-type': 'application/json' }).end(`{"x":"<meta name=linkseed content=${SLUG}>"}`),
@@ -50,11 +51,12 @@ test('badge link to the listing page verifies, slash optional, redirects followe
 
 test('fails safe with a reason', async () => {
   assert.deepEqual(await check('/none'), { verified: false, reached: true, note: 'no linkseed meta tag or badge link in the first 2 kB' });
-  assert.deepEqual(await check('/missing'), { verified: false, reached: false, note: 'page answered HTTP 404' });
+  assert.deepEqual(await check('/missing'), { verified: false, reached: true, note: 'page answered HTTP 404' });
   assert.deepEqual(await check('/json'), { verified: false, reached: true, note: 'page is not HTML' });
   assert.deepEqual(await check('/slow'), { verified: false, reached: false, note: 'timed out after 0.3 s' });
   assert.equal((await check('/big')).verified, false, 'proof past the byte cap does not count');
-  assert.deepEqual(await check('/away'), { verified: false, reached: false, note: 'page redirects to another site' });
+  assert.deepEqual(await check('/away'), { verified: false, reached: true, note: 'page redirects to another site' });
+  assert.deepEqual(await check('/busy'), { verified: false, reached: false, note: 'page answered HTTP 503' });
   assert.deepEqual(await check('/loop'), { verified: false, reached: false, note: 'too many redirects' });
   const down = await checkOwnership('http://127.0.0.1:9/', SLUG, { timeoutMs: 300, guard: open });
   assert.equal(down.reached, false);

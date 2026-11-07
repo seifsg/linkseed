@@ -1,7 +1,11 @@
 import { execFileSync } from 'node:child_process';
 
+// The Actions bot identity, on every call: `commit` and the replayed commits of `pull --rebase` both need it.
+const BOT = ['-c', 'user.name=github-actions[bot]', '-c', 'user.email=41898282+github-actions[bot]@users.noreply.github.com'];
+
 /** Runs git with arguments as an array: no shell, so no text from an issue can become a command. */
-const git = (...args: string[]): string => execFileSync('git', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+const git = (...args: string[]): string =>
+  execFileSync('git', [...BOT, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 
 /**
  * Commits changes under `path` as the Actions bot and pushes to main, rebasing on concurrent pushes.
@@ -10,7 +14,7 @@ const git = (...args: string[]): string => execFileSync('git', args, { encoding:
 export function commitAndPush(path: string, message: string, tries = 3): boolean {
   git('add', '--all', '--', path);
   if (!git('status', '--porcelain', '--', path)) return false;
-  git('-c', 'user.name=github-actions[bot]', '-c', 'user.email=41898282+github-actions[bot]@users.noreply.github.com', 'commit', '-m', message);
+  git('commit', '-m', message);
   for (let i = 1; ; i++) {
     try {
       git('pull', '--rebase', 'origin', 'main');

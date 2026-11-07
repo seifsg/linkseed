@@ -1,7 +1,7 @@
 import { lookup } from 'node:dns/promises';
 import { SITE_NAME, SITE_URL } from '../config.ts';
 
-/** Result of one ownership check. `reached` is false when the page could not be read at all. */
+/** Result of one ownership check. `reached` is false on an outage (timeout, network, 5xx, 429): a recheck then keeps the link. */
 export interface Ownership {
   verified: boolean;
   reached: boolean;
@@ -80,7 +80,8 @@ export async function checkOwnership(url: string, slug: string, opts: CheckOpts 
       const res = await fetch(at, { redirect: 'manual', signal, headers: { 'user-agent': UA, accept: 'text/html,application/xhtml+xml' } });
       const location = res.status >= 300 && res.status < 400 ? res.headers.get('location') : null;
       if (location === null) {
-        if (!res.ok) return fail(`page answered HTTP ${res.status}`, false);
+        // 4xx means the page is gone or refuses us: that revokes. 5xx and 429 are outages: they do not.
+        if (!res.ok) return fail(`page answered HTTP ${res.status}`, res.status < 500 && res.status !== 429);
         if (!/text\/html|application\/xhtml\+xml/i.test(res.headers.get('content-type') ?? '')) return fail('page is not HTML');
         return hasOwnership(await readCapped(res, maxBytes), slug)
           ? { verified: true, reached: true, note: 'meta tag or badge found' }
@@ -88,7 +89,7 @@ export async function checkOwnership(url: string, slug: string, opts: CheckOpts 
       }
       await res.body?.cancel();
       const next = new URL(location, at);
-      if (next.protocol !== start.protocol || bare(next.hostname) !== bare(start.hostname)) return fail('page redirects to another site', false);
+      if (next.protocol !== start.protocol || bare(next.hostname) !== bare(start.hostname)) return fail('page redirects to another site');
       if (hop >= MAX_HOPS) return fail('too many redirects', false);
       at = next;
     }

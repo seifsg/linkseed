@@ -49,7 +49,7 @@ export const BLOCKED_WORDS = new Set([
 /** Stems that match anywhere inside a word or domain (`mycasino.com`). */
 export const BLOCKED_STEMS = [
   'casino', 'gambling', 'betting', 'bookmaker', 'sportsbook', 'poker', 'lottery', 'jackpot', 'roulette',
-  'blackjack', 'porn', 'onlyfans', 'escort', 'alcohol', 'liquor', 'vodka', 'whisk', 'brewery', 'cannabis',
+  'blackjack', 'porn', 'onlyfans', 'escort', 'alcohol', 'liquor', 'vodka', 'whisky', 'whiskey', 'brewery', 'cannabis',
   'marijuana', 'tarot', 'horoscope', 'astrolog', 'psychic', 'payday',
 ];
 
